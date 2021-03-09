@@ -39,8 +39,8 @@ namespace CustomerTicket {
       SubmitButton.Text = "Submitting...";
       Success.Text = "";
 
-
       var result = await Task.Run( () => Main.post( ticket ) );
+
       if (result) {
         Success.Text = "Success";
         Success.ForeColor = Color.Green;

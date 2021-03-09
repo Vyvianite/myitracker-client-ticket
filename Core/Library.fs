@@ -16,7 +16,7 @@ module Main =
                 "body", ticket.Body
                 "priority", ticket.Priority ]
           |> Some
-          |> post (Uri (config.Server + "tickets/")) "customerTicket"
+          |> post (Uri (config.Server + "tickets/")) "savecustomerticket"
           |> Async.RunSynchronously
       | Error x -> 
           Error "Error Reading config file"

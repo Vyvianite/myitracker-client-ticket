@@ -1,5 +1,9 @@
+using MutexManager;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,10 +15,18 @@ namespace CustomerTicket {
     /// </summary>
     [STAThread]
     static void Main() {
+      if ( !SingleInstance.Start() ) { return; } // mutex not obtained so exit
       Application.SetHighDpiMode( HighDpiMode.SystemAware );
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault( false );
-      Application.Run( new TicketForm() );
+      try {
+        Application.Run( new TrayContext() );
+      }
+      catch ( Exception ex ) {
+        MessageBox.Show( ex.Message, "Program Terminated Unexpectedly",
+            MessageBoxButtons.OK, MessageBoxIcon.Error );
+      }
+      SingleInstance.Stop(); // all finished so release the mutex
     }
   }
 }
