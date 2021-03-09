@@ -2,33 +2,37 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace CustomerTicket {
 
   public class TrayContext : ApplicationContext {
-    // Icon graphic from http://prothemedesign.com/circular-icons/
-    private static readonly string IconFileName = "route.ico";
-    private static readonly string DefaultTooltip = "Route HOST entries via context menu";
+    private static readonly string DefaultTooltip = "Report an Issue";
+    private IContainer components;  // a list of components to dispose when the context is disposed
+    private NotifyIcon notifyIcon;  // the icon that sits in the system tray
+    private Form ticketForm;
 
     /// <summary>
 		/// This class should be created and passed into Application.Run()
 		/// </summary>
 		public TrayContext() {
-      InitializeContext();
-    }
-
-    private void ContextMenuStrip_Opening( object sender, System.ComponentModel.CancelEventArgs e ) {
-      e.Cancel = false;
+      components = new Container();
+      notifyIcon = new NotifyIcon( components ) {
+        ContextMenuStrip = new(),
+        Icon = Properties.Resources.MyItIcon,
+        Text = DefaultTooltip,
+        Visible = true
+      };
+      notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+      notifyIcon.DoubleClick += notifyIcon_DoubleClick;
     }
 
     #region the child forms
-    private Form ticketForm;
-
+    
     private void ShowForm() {
       if ( ticketForm is null ) {
         ticketForm = new TicketForm();
         ticketForm.Closed += ticketFormClosed; // avoid reshowing a disposed form
-        //ElementHost.EnableModelessKeyboardInterop( ticketForm );
         ticketForm.Show();
       }
       else { 
@@ -38,26 +42,15 @@ namespace CustomerTicket {
 
     private void notifyIcon_DoubleClick( object sender, EventArgs e ) { ShowForm(); }
 
+    private void ContextMenuStrip_Opening( object sender, CancelEventArgs e ) {
+      e.Cancel = false;
+      notifyIcon.ContextMenuStrip.Items.Add( "Exit", null, exitItem_Click );
+    }
+
     // null out the forms so we know to create a new one.
     private void ticketFormClosed( object sender, EventArgs e ) { ticketForm = null; }
 
     #endregion the child forms
-
-    private System.ComponentModel.IContainer components;  // a list of components to dispose when the context is disposed
-    private NotifyIcon notifyIcon;                        // the icon that sits in the system tray
-
-    private void InitializeContext() {
-      components = new System.ComponentModel.Container();
-      notifyIcon = new NotifyIcon( components ) {
-        ContextMenuStrip = new ContextMenuStrip(),
-        Icon = new Icon( IconFileName ),
-        Text = DefaultTooltip,
-        Visible = true
-      };
-      //notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-      notifyIcon.DoubleClick += notifyIcon_DoubleClick;
-    }
-
 
     protected override void Dispose( bool disposing ) {
       if ( disposing && components != null ) { components.Dispose(); }
