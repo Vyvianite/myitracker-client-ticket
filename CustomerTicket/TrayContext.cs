@@ -19,7 +19,7 @@ namespace CustomerTicket {
       components = new Container();
       notifyIcon = new NotifyIcon( components ) {
         ContextMenuStrip = new(),
-        Icon = Icon.FromHandle(Properties.Resources.MyItIcon.GetHicon()),
+        Icon = Properties.Resources.MyItIcon,
         Text = DefaultTooltip,
         Visible = true
       };
